@@ -1,2 +1,50 @@
 Resources:
-  ATUec2:
+  VPC: 
+    Type: AWS::EC2::VPC
+    Properties: 
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        Tags: 
+            - Key: "Name"
+              Value: "Mini-Network Project"
+       
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties: 
+        VpcId: !Ref VPC
+        AvailabilityZone: us-east-1a
+        CidrBlock: 10.0.0.0/24
+        MapPublicIpOnLaunch: true
+        Tags: 
+            - Key: "Name"
+              Value: "Public Subnet A"
+            
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties: 
+        VpcId: !Ref VPC
+        AvailabilityZone: us-east-1b
+        CidrBlock: 10.0.1.0/24
+        MapPublicIpOnLaunch: false
+        Tags:
+            - Key: "Name"
+              Value: "Private Subnet B"
+            
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+        InstanceType: t2.micro
+        #SubnetId: PublicSubnetA
+        ImageId: "ami-026b57f3c383c2eec"
+        
+Outputs:
+    OutputInstance: 
+        Value: !Ref EC2Instance
+        Description: EC2 Instance
+        Export:
+            Name: InstanceValue2
+    
+            
+        
+ 
