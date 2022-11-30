@@ -8,6 +8,19 @@ Resources:
         Tags: 
             - Key: "Name"
               Value: "Mini-Network Project"
+              
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+        Tags: 
+            - Key: "Name"
+              Value: "Mini-Network Project Internet Gateway"
+            
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+        InternetGatewayId: !Ref InternetGateway
+        VpcId: !Ref VPC
        
   PublicSubnetA:
     Type: AWS::EC2::Subnet
@@ -30,12 +43,38 @@ Resources:
         Tags:
             - Key: "Name"
               Value: "Private Subnet B"
-            
+              
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+        VpcId: !Ref VPC
+           
+  InternetRoute: 
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+        RouteTableId: !Ref RouteTable
+        
+  PublicSubnetATableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+        RouteTableId: !Ref RouteTable
+        SubnetId: !Ref PublicSubnetA
+           
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
         InstanceType: t2.micro
-        #SubnetId: PublicSubnetA
+        SubnetId: !Ref PublicSubnetA
+        ImageId: "ami-026b57f3c383c2eec"
+        
+  EC2InstancePrivate:
+    Type: AWS::EC2::Instance
+    Properties:
+        InstanceType: t2.micro
+        SubnetId: !Ref PrivateSubnetB
         ImageId: "ami-026b57f3c383c2eec"
         
 Outputs:
