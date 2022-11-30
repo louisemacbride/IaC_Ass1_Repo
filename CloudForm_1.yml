@@ -1,5 +1,5 @@
 Resources:
-  VPC: 
+ VPC: 
     Type: AWS::EC2::VPC
     Properties: 
         CidrBlock: 10.0.0.0/16
@@ -9,20 +9,20 @@ Resources:
             - Key: "Name"
               Value: "Mini-Network Project"
               
-  InternetGateway:
+ InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
         Tags: 
             - Key: "Name"
               Value: "Mini-Network Project Internet Gateway"
             
-  InternetGatewayAttachment:
+ InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
         InternetGatewayId: !Ref InternetGateway
         VpcId: !Ref VPC
        
-  PublicSubnetA:
+ PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties: 
         VpcId: !Ref VPC
@@ -33,7 +33,7 @@ Resources:
             - Key: "Name"
               Value: "Public Subnet A"
             
-  PrivateSubnetB:
+ PrivateSubnetB:
     Type: AWS::EC2::Subnet
     Properties: 
         VpcId: !Ref VPC
@@ -44,12 +44,12 @@ Resources:
             - Key: "Name"
               Value: "Private Subnet B"
               
-  RouteTable:
+ RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
         VpcId: !Ref VPC
            
-  InternetRoute: 
+ InternetRoute: 
     Type: AWS::EC2::Route
     DependsOn: InternetGateway
     Properties:
@@ -57,33 +57,48 @@ Resources:
         GatewayId: !Ref InternetGateway
         RouteTableId: !Ref RouteTable
         
-  PublicSubnetATableAssociation:
+ PublicSubnetATableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
         RouteTableId: !Ref RouteTable
         SubnetId: !Ref PublicSubnetA
-           
-  EC2Instance:
+   
+ SecurityGroup: 
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+        GroupDescription: Security Group for the Bastion Host
+        VpcId: !Ref VPC
+        GroupName: "Bastion Host Security Group"
+ 
+ SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+          GroupId: !Ref SecurityGroup
+          IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 1.1.1.1/32
+
+ EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
         InstanceType: t2.micro
         SubnetId: !Ref PublicSubnetA
         ImageId: "ami-026b57f3c383c2eec"
+        SecurityGroupIds: 
+            - Ref: SecurityGroup
         
-  EC2InstancePrivate:
+ EC2InstancePrivate:
     Type: AWS::EC2::Instance
     Properties:
         InstanceType: t2.micro
         SubnetId: !Ref PrivateSubnetB
         ImageId: "ami-026b57f3c383c2eec"
+
         
-Outputs:
-    OutputInstance: 
-        Value: !Ref EC2Instance
-        Description: EC2 Instance
-        Export:
-            Name: InstanceValue2
-    
-            
-        
- 
+ ElasticIp:
+    Type: AWS::EC2::EIP
+    Properties:
+        Domain: vpc
+        InstanceId: !Ref EC2Instance
+       
