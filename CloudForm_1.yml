@@ -1,3 +1,9 @@
+Parameters: 
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "VpcId of your current Virtual Private Cloud that you wish to use" 
+    Default: vpc-0442d7f979fcd6a41
+
 Resources:
  VPC: 
     Type: AWS::EC2::VPC
@@ -63,42 +69,5 @@ Resources:
         RouteTableId: !Ref RouteTable
         SubnetId: !Ref PublicSubnetA
    
- SecurityGroup: 
-    Type: AWS::EC2::SecurityGroup
-    Properties: 
-        GroupDescription: Security Group for the Bastion Host
-        VpcId: !Ref VPC
-        GroupName: "Bastion Host Security Group"
- 
- SecurityGroupIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-          GroupId: !Ref SecurityGroup
-          IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: 1.1.1.1/32
 
- EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-        InstanceType: t2.micro
-        SubnetId: !Ref PublicSubnetA
-        ImageId: "ami-026b57f3c383c2eec"
-        SecurityGroupIds: 
-            - Ref: SecurityGroup
-        
- EC2InstancePrivate:
-    Type: AWS::EC2::Instance
-    Properties:
-        InstanceType: t2.micro
-        SubnetId: !Ref PrivateSubnetB
-        ImageId: "ami-026b57f3c383c2eec"
-
-        
- ElasticIp:
-    Type: AWS::EC2::EIP
-    Properties:
-        Domain: vpc
-        InstanceId: !Ref EC2Instance
        
