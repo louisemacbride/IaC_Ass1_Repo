@@ -1,0 +1,51 @@
+Parameters: 
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "VpcId of your current Virtual Private Cloud that you wish to use" 
+    Default: vpc-0442d7f979fcd6a41
+    
+  PublicSubnet:
+    Description: "Which public subnet would you like to use? "
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-0b167c837f132d877
+    
+  PrivateSubnet: 
+    Description: "Which private subnet would you like to use?"
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-079d1f21598b5c597
+    
+  BastionHostSG:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: "Security Group to apply to your bastion host" 
+    Default: sg-0770bbcdc2fba1716
+    
+Resources: 
+
+ NewKeyPair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+        KeyName: MyKeyPair
+
+ EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+        InstanceType: t2.micro
+        KeyName: !Ref NewKeyPair
+        SubnetId: !Ref PublicSubnet
+        ImageId: "ami-026b57f3c383c2eec"
+        SecurityGroupIds: 
+            - Ref: BastionHostSG
+        
+ EC2InstancePrivate:
+    Type: AWS::EC2::Instance
+    Properties:
+        InstanceType: t2.micro
+        SubnetId: !Ref PrivateSubnet
+        ImageId: "ami-026b57f3c383c2eec"
+
+        
+ ElasticIp:
+    Type: AWS::EC2::EIP
+    Properties:
+        Domain: vpc
+        InstanceId: !Ref EC2Instance
