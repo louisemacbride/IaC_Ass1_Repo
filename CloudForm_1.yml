@@ -1,9 +1,4 @@
-Parameters: 
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: "VpcId of your current Virtual Private Cloud that you wish to use" 
-    Default: vpc-0442d7f979fcd6a41
-
+#Creation of a new VPC with 2 subnets, a public and private. 
 Resources:
  VPC: 
     Type: AWS::EC2::VPC
@@ -15,6 +10,7 @@ Resources:
             - Key: "Name"
               Value: "Mini-Network Project"
               
+#Creation of InternetGateway and attaching that to the new VPC.              
  InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -37,7 +33,7 @@ Resources:
         MapPublicIpOnLaunch: true
         Tags: 
             - Key: "Name"
-              Value: "Public Subnet A"
+              Value: "Public Subnet"
             
  PrivateSubnetB:
     Type: AWS::EC2::Subnet
@@ -48,8 +44,9 @@ Resources:
         MapPublicIpOnLaunch: false
         Tags:
             - Key: "Name"
-              Value: "Private Subnet B"
+              Value: "Private Subnet"
               
+#Route Table defining the destinations for the route and associating it with the subnet.           
  RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:

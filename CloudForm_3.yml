@@ -1,16 +1,27 @@
+#Parameters to be defined by the user launching the template.
 Parameters:
     VpcId:
         Type: AWS::EC2::VPC::Id
         Description: "VpcId of your current Virtual Private Cloud that you wish to use" 
-        Default: vpc-0442d7f979fcd6a41
+        Default: Select A VPC
     
     PublicSubnet:
         Description: "Which public subnet would you like to use? "
         Type: AWS::EC2::Subnet::Id
-        Default: subnet-0b167c837f132d877
-
+        Default: Select A Public Subnet
+        
+    PrivateSubnet:
+        Description: "Which public subnet would you like to use? "
+        Type: AWS::EC2::Subnet::Id
+        Default: Select A Private Subnet
+        
+    WorkStationIP: 
+        Type: String
+        Description: The Workstation IP that is allowed to login to the server
+        
+#Creation of security groups that will be attached to both public and private subnets.              
 Resources:
-  SecurityGroup: 
+  PublicSecurityGroup: 
     Type: AWS::EC2::SecurityGroup
     Properties: 
         VpcId: !Ref VpcId
@@ -20,4 +31,19 @@ Resources:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
-          CidrIp: 1.1.1.1/32
+          CidrIp: !Sub ${WorkStationIP}/32
+        SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+ 
+  PrivateSecurityGroup: 
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+        VpcId: !Ref VpcId
+        GroupDescription: Security Group for the Bastion Host
+        GroupName: "Private EC2 Instance Security Group"
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 10.0.0.0/24
